@@ -1,3 +1,3 @@
 # SafeShare
 
-AWS-SprinBoot-React
+Java-AWS-SprinBoot-React
