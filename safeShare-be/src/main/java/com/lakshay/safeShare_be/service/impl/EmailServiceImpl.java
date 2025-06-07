@@ -16,13 +16,13 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendVerificationEmail(String to, String subject, String text) throws MessagingException {
-        MimeMessage message = emailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        MimeMessage mimeMessage = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
         
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(text);
         
-        emailSender.send(message);
+        emailSender.send(mimeMessage);
     }
 }
