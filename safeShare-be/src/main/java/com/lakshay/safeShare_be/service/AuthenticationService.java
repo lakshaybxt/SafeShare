@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthenticationService {
     User signUp(RegisterUserDto request);
-    UserDetails userDetails(LoginUserDto request);
+    UserDetails authenticate(LoginUserDto request);
     void verifyUser(VerifyUserDto request);
-    void sendVerificationCode(String email);
+    void resendVerificationCode(String email);
 }

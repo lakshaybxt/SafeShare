@@ -1,6 +1,5 @@
 package com.lakshay.safeShare_be.configuration;
 
-import com.lakshay.safeShare_be.repository.UserRepository;
 import com.lakshay.safeShare_be.security.JwtAuthenticationFilter;
 import com.lakshay.safeShare_be.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -30,11 +30,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         return httpSecurity
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "api/v1/auth/**").permitAll()
+                        .requestMatchers("api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -44,16 +44,16 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
-            UserRepository userRepository,
+            UserDetailsService userDetailsService,
             JwtService jwtService,
             HandlerExceptionResolver handlerExceptionResolver) {
-        return new JwtAuthenticationFilter(userRepository, jwtService, handlerExceptionResolver);
+        return new JwtAuthenticationFilter(userDetailsService, jwtService, handlerExceptionResolver);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://backend.com", "http://lcoalhost:8080"));
+        corsConfiguration.setAllowedOrigins(List.of("https://backend.com", "http://localhost:8080"));
         corsConfiguration.setAllowedMethods(List.of("GET", "PUT", "POST", "DELETE"));
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-type"));
 

@@ -16,6 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,9 +27,10 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final UserRepository userRepository;
-    private UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
     @Override
@@ -36,7 +38,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .verificationCode(generateVerificationCode())
                 .verificationCodeExpiration(LocalDateTime.now().plusMinutes(15))
                 .build();
@@ -77,7 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public UserDetails userDetails(LoginUserDto request) {
+    public UserDetails authenticate(LoginUserDto request) {
         User user = userRepository.findByEmail(request.getEmail())
                         .orElseThrow(() -> new UsernameNotFoundException("User not found with the email"));
 
@@ -116,7 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void sendVerificationCode(String email) {
+    public void resendVerificationCode(String email) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
